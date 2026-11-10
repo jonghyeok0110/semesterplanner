@@ -271,8 +271,16 @@ dl.kv dd{margin:0}
 .prog i{display:block;height:100%;background:var(--c4);border-radius:999px}
 .semmeta{display:flex;justify-content:space-between;font-size:13px;font-weight:500}
 .semmeta.sub{font-size:12px;color:var(--sub);font-weight:400;margin-top:2px}
-.fld input[type=date]{-webkit-appearance:none;appearance:none;text-align:left;min-width:0;line-height:22px}
-.fld input[type=date]::-webkit-date-and-time-value{text-align:left}
+.fld input[type=date],.fld input[type=time]{-webkit-appearance:none;appearance:none;text-align:left;min-width:0;line-height:22px}
+.fld input[type=date]::-webkit-date-and-time-value,.fld input[type=time]::-webkit-date-and-time-value{text-align:left}
+/* 아이폰: 16px 미만 입력칸은 누를 때 화면이 확대돼 창이 어긋남 */
+.fld input,.fld select,.fld textarea{font-size:16px}
+.sheet{max-height:92vh;max-height:92dvh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* 수업 시간 줄: 좁은 화면에서도 한 줄에 맞게 */
+.slot{display:grid;grid-template-columns:58px minmax(0,1fr) 10px minmax(0,1fr) 36px;gap:6px;align-items:center}
+.fld .slot select,.fld .slot input{width:100%;margin:0;padding:8px 6px}
+.slot>span{text-align:center;color:var(--sub)}
+@media (pointer:coarse),(max-width:420px){.slot input[type=time]::-webkit-calendar-picker-indicator{display:none}}
 </style>
 </head>
 <body>
@@ -569,7 +577,10 @@ function render(){
   renderHeader();renderFilters();
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.view===ui.view));
   const v=ui.view;
-  $('#main').innerHTML=v==='day'?viewDay():v==='week'?viewWeek():v==='month'?viewMonth():v==='tasks'?viewTasks():viewSubjects();
+  let html;
+  try{html=v==='day'?viewDay():v==='week'?viewWeek():v==='month'?viewMonth():v==='tasks'?viewTasks():viewSubjects();}
+  catch(e){console.error(e);html=`<div class="card"><p class="empty">화면을 표시하지 못했어요. 새로고침해 주세요. (${esc(e&&e.message)})</p></div>`;}
+  $('#main').innerHTML=html;
   $('#fab').setAttribute('aria-label',v==='subjects'?'과목 추가':'일정 추가');
   if(v==='subjects'&&sync.ref)loadSnaps();
 }
@@ -697,7 +708,6 @@ $('#ov').addEventListener('click',ev=>{if(ev.target.id==='ov')closeSheet();});
 $('#fab').addEventListener('click',()=>ui.view==='subjects'?subjectSheet(null):eventSheet(null));
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(ui.view==='week'&&$('#ov').hidden)render();},150);});
 setInterval(()=>{if($('#ov').hidden&&['day','week'].includes(ui.view))render();},60000);
-render();
 
 /* ---------- 백업·구글 드라이브 동기화 ---------- */
 // 클라이언트 ID를 여기에 넣어도 되고, 앱의 과목 탭 > 백업·구글 드라이브 동기화에서 입력해도 돼요.
@@ -920,6 +930,7 @@ function importSheet(){
   });
 }
 setSync('local');
+render();
 initSync();
 if('serviceWorker' in navigator&&window.isSecureContext)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>

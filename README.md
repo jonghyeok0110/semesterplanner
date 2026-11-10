@@ -51,4 +51,4 @@ favicon.ico, favicon-32.png, favicon.svg, icon-192.png, icon-512.png, icon-maska
 
 ## 3. 수정한 뒤 다시 올릴 때
 
-`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v5`를 `v6`, `v7`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.
+`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v7`을 `v8`, `v9`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.
