@@ -6,6 +6,9 @@
 <title>학기 플래너</title>
 <meta name="theme-color" content="#ECEEF2">
 <meta name="description" content="대학 생활용 월간·주간·일간 일정과 시간표">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -260,6 +263,16 @@ dl.kv dd{margin:0}
 .fld textarea.code,textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--c4);color:var(--c0);padding:9px 14px;border-radius:10px;font-size:13px;z-index:60;box-shadow:0 6px 18px rgba(43,50,59,.25);max-width:90vw;text-align:center}
 @media(min-width:760px){.toast{bottom:32px}}
+.semtop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.semname{font-size:18px;font-weight:700;line-height:1.3}
+.semrange{font-size:13px;color:var(--sub);margin-top:2px}
+.semtop .btn.sm{margin:0;flex:none}
+.prog{height:8px;background:var(--c1);border-radius:999px;overflow:hidden;margin:14px 0 8px}
+.prog i{display:block;height:100%;background:var(--c4);border-radius:999px}
+.semmeta{display:flex;justify-content:space-between;font-size:13px;font-weight:500}
+.semmeta.sub{font-size:12px;color:var(--sub);font-weight:400;margin-top:2px}
+.fld input[type=date]{-webkit-appearance:none;appearance:none;text-align:left;min-width:0;line-height:22px}
+.fld input[type=date]::-webkit-date-and-time-value{text-align:left}
 </style>
 </head>
 <body>
@@ -486,10 +499,38 @@ function viewTasks(){
   return h;
 }
 
+const fmtLong=ds=>{const d=parse(ds);return `${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;};
+const semWeeks=(a=S.semester.start,b=S.semester.end)=>Math.max(1,Math.floor(diffDays(ymd(startOfWeek(parse(b))),ymd(startOfWeek(parse(a))))/7)+1);
+function semSheet(){
+  const sem=S.semester,y=new Date().getFullYear(),m=new Date().getMonth()+1;
+  const pre=[[`${y}년 1학기`,'1학기',`${y}-03-02`,`${y}-06-20`],[`${y}년 2학기`,'2학기',`${y}-09-01`,`${y}-12-19`]];
+  if(m>=9)pre.push([`${y+1}년 1학기`,'1학기',`${y+1}-03-02`,`${y+1}-06-20`]);
+  openSheet(`<form id="semf" autocomplete="off"><h2>학기 설정</h2>
+  <div class="fld">빠른 입력 (날짜는 학교 학사일정에 맞게 고쳐 주세요)<div class="seg" id="sempre">${pre.map((p,i)=>`<button type="button" data-i="${i}">${p[0]}</button>`).join('')}</div></div>
+  <label class="fld">학기 이름<input name="name" maxlength="20" required value="${esc(sem.name)}" placeholder="예: 2학기"></label>
+  <div class="row2"><label class="fld">개강<input type="date" name="start" required value="${sem.start}"></label><label class="fld">종강<input type="date" name="end" required value="${sem.end}"></label></div>
+  <p class="note" id="semsum"></p><p class="warn" id="semerr" hidden></p>
+  <div class="actions"><button type="button" class="btn" data-close>취소</button><button class="btn pri">저장</button></div></form>`);
+  const f=$('#semf'),E=f.elements;
+  const sum=()=>{const a=E['start'].value,b=E['end'].value,ok=reD.test(a)&&reD.test(b)&&a<b;
+    $('#semsum').textContent=ok?`${fmtLong(a)} – ${fmtLong(b)} · ${semWeeks(a,b)}주 · ${diffDays(b,a)+1}일`:'';
+    $('#semerr').hidden=ok||!a||!b;$('#semerr').textContent='종강일은 개강일보다 뒤여야 해요';return ok;};
+  sum();f.addEventListener('input',sum);f.addEventListener('change',sum);
+  $('#sempre').addEventListener('click',ev=>{const b=ev.target.closest('[data-i]');if(!b)return;const p=pre[+b.dataset.i];E['name'].value=p[1];E['start'].value=p[2];E['end'].value=p[3];sum();});
+  f.addEventListener('submit',ev=>{ev.preventDefault();if(!sum())return;
+    S.semester={name:E['name'].value.trim()||'학기',start:E['start'].value,end:E['end'].value};save();closeSheet();render();});
+}
 const slotText=s=>s.slots.map(x=>`${DOW[x.day]} ${x.start}–${x.end}`).join(', ')||'시간 미정';
 function viewSubjects(){
   const sem=S.semester,cr=S.subjects.reduce((a,s)=>a+(+s.credits||0),0);
-  let h=`<section class="card sem"><h3><span>학기 설정</span><span class="cnt">${S.subjects.length}과목 · ${cr}학점</span></h3><div class="row3"><label class="fld">학기 이름<input data-sem="name" value="${esc(sem.name)}"></label><label class="fld">개강<input type="date" data-sem="start" value="${sem.start}"></label><label class="fld">종강<input type="date" data-sem="end" value="${sem.end}"></label></div></section><div class="sgrid">`;
+  const T=todayStr(),total=semWeeks(),span=Math.max(1,diffDays(sem.end,sem.start));
+  const pct=Math.round(Math.min(1,Math.max(0,diffDays(T,sem.start)/span))*100);
+  const wk=inSem(T)?Math.floor(diffDays(ymd(startOfWeek(parse(T))),ymd(startOfWeek(parse(sem.start))))/7)+1:0;
+  const left=T<sem.start?`개강까지 ${diffDays(sem.start,T)}일`:T>sem.end?'종강했어요':diffDays(sem.end,T)===0?'오늘 종강':`종강까지 ${diffDays(sem.end,T)}일`;
+  let h=`<section class="card sem"><div class="semtop"><div class="semhd"><div class="semname">${esc(sem.name)}</div><div class="semrange">${fmtLong(sem.start)} – ${fmtLong(sem.end)}</div></div><button class="btn sm" data-act="edit-sem">수정</button></div>
+  <div class="prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="학기 진행률"><i style="width:${pct}%"></i></div>
+  <div class="semmeta"><span>${wk?`${wk}주차 / ${total}주`:`총 ${total}주`}</span><span>${left}</span></div>
+  <div class="semmeta sub"><span>${S.subjects.length}과목 · ${cr}학점</span><span>${pct}% 지남</span></div></section><div class="sgrid">`;
   S.subjects.forEach(s=>{
     const open=S.events.filter(e=>e.subject===s.id&&!e.done).length;
     h+=`<button class="scard" data-act="edit-subj" data-id="${s.id}"><div class="top" style="${subjStyle(s)}"><span>${esc(s.abbr)}</span><span class="cr">${s.credits||0}학점</span></div><div class="bd"><div class="nm">${esc(s.name)}</div><div class="mt">${esc([s.prof,s.room].filter(Boolean).join(' · ')||'-')}</div><div class="mt">${slotText(s)}</div><div class="mt">남은 할 일 ${open}건</div></div></button>`;
@@ -631,6 +672,7 @@ document.addEventListener('click',ev=>{
     case 'filter':{const s=t.dataset.sid;S.hidden=s==='all'?[]:S.hidden.includes(s)?S.hidden.filter(x=>x!==s):[...S.hidden,s];save();render();break;}
     case 'type':ui.typeFilter=t.dataset.t;render();break;
     case 'hide-done':S.hideDone=!S.hideDone;save();render();break;
+    case 'edit-sem':semSheet();break;
     case 'edit-subj':subjectSheet(id);break;
     case 'add-subj':subjectSheet(null);break;
     case 'goto-sync':if(sync.state==='auth'){connect();break;}ui.view='subjects';persistView();render();{const c=$('#synccard');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});}break;

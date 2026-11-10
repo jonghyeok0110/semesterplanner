@@ -11,7 +11,7 @@ index.html             앱 본체
 manifest.webmanifest   홈 화면 설치용 설정
 sw.js                  오프라인 실행용
 logo.svg, logo-1024.png, logo-fullbleed.svg    로고
-favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png    앱 아이콘
+favicon.ico, favicon-32.png, favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png    앱 아이콘
 ```
 
 ## 1. GitHub Pages에 올리기
@@ -51,4 +51,4 @@ favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon
 
 ## 3. 수정한 뒤 다시 올릴 때
 
-`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v3`을 `v4`, `v5`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.
+`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v5`를 `v6`, `v7`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.
