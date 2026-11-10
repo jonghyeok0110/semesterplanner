@@ -4,21 +4,20 @@
 
 ## 파일 구성
 
+모든 파일을 저장소 맨 위(루트)에 폴더 없이 올리면 돼요.
+
 ```
-index.html             앱 본체 (이 파일 하나로 실행돼요)
+index.html             앱 본체
 manifest.webmanifest   홈 화면 설치용 설정
 sw.js                  오프라인 실행용
-icons/                 로고와 앱 아이콘
-  logo.svg             원본 로고
-  logo-1024.png        큰 로고 이미지
-  logo-fullbleed.svg   여백 없이 꽉 찬 로고
-  favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png
+logo.svg, logo-1024.png, logo-fullbleed.svg    로고
+favicon.svg, icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png    앱 아이콘
 ```
 
 ## 1. GitHub Pages에 올리기
 
 1. GitHub에서 새 저장소를 만들어요. 예: `semester-planner`
-2. 이 폴더 안의 파일을 **저장소 맨 위(루트)** 에 그대로 올려요. `icons` 폴더도 같이 올려야 해요.
+2. 압축을 푼 파일 전부를 저장소 맨 위(루트)에 올려요.
 3. 저장소 **Settings → Pages** 에서 Source를 `Deploy from a branch`로, Branch를 `main` / `/ (root)`로 고르고 저장해요.
 4. 1~2분 뒤 `https://아이디.github.io/semester-planner/` 링크가 생겨요.
 
@@ -52,4 +51,4 @@ icons/                 로고와 앱 아이콘
 
 ## 3. 수정한 뒤 다시 올릴 때
 
-`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v1`을 `v2`, `v3`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.
+`index.html`을 고쳤다면 `sw.js`의 `semester-planner-v3`을 `v4`, `v5`처럼 올려 주세요. 그래야 설치된 앱도 새 버전으로 바뀌어요.

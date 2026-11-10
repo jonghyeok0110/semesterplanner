@@ -1,8 +1,8 @@
 // 오프라인에서도 앱 화면이 열리도록 기본 파일을 저장해 둡니다.
 // index.html을 고친 뒤에는 아래 버전 숫자를 올려 주세요.
-const CACHE = 'semester-planner-v2';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+const CACHE = 'semester-planner-v3';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './favicon.svg',
+  './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
